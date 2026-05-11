@@ -999,7 +999,7 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<string | boolean>(false);
   const [userHasReview, setUserHasReview] = useState(false);
 
   const loadReviews = useCallback(async () => {
@@ -1024,17 +1024,19 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
     setError("");
     setSubmitting(true);
     const token = localStorage.getItem("dl_token");
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["X-Session-Token"] = token;
     const res = await fetch(REVIEWS_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Session-Token": token || "" },
+      headers,
       body: JSON.stringify({ rating, text: text.trim() }),
     });
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Ошибка"); setSubmitting(false); return; }
-    setSuccess(true);
+    setSuccess(data.guest_name || true);
     setRating(0);
     setText("");
-    setUserHasReview(true);
+    if (user) setUserHasReview(true);
     loadReviews();
     setSubmitting(false);
   };
@@ -1064,17 +1066,7 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl border border-gray-100 p-6 sticky top-20">
             <h3 className="font-display font-bold text-[#1a1a1a] mb-4">Оставить отзыв</h3>
-            {!user ? (
-              <div className="text-center py-4">
-                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Icon name="User" size={24} className="text-gray-400" />
-                </div>
-                <p className="text-gray-500 text-sm mb-4">Войдите, чтобы оставить отзыв</p>
-                <button onClick={onLogin} className="w-full bg-[#E84A30] text-white font-medium py-2.5 rounded-lg hover:bg-[#cf3d26] transition-colors">
-                  Войти
-                </button>
-              </div>
-            ) : userHasReview ? (
+            {userHasReview ? (
               <div className="text-center py-4">
                 <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Icon name="CheckCircle" size={24} className="text-green-600" />
@@ -1087,22 +1079,43 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
                   <Icon name="CheckCircle" size={24} className="text-green-600" />
                 </div>
                 <p className="font-semibold text-[#1a1a1a] mb-1">Отзыв опубликован!</p>
-                <p className="text-gray-400 text-sm">Спасибо за обратную связь</p>
+                {typeof success === "string" && (
+                  <p className="text-gray-400 text-sm">Ваше имя: <span className="font-medium text-[#1a1a1a]">{success}</span></p>
+                )}
+                <p className="text-gray-400 text-sm mt-1">Спасибо за обратную связь!</p>
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-4">
+                {/* Аватар пользователя или гость */}
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                  {user ? (
+                    <>
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-8 h-8 bg-[#E84A30] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{user.name[0]}</span>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm font-semibold text-[#1a1a1a]">{user.name}</div>
+                        <div className="text-xs text-gray-400">{user.provider === "google" ? "Google" : "ВКонтакте"}</div>
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-8 h-8 bg-[#E84A30] rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{user.name[0]}</span>
-                    </div>
+                    <>
+                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                        <Icon name="User" size={16} className="text-gray-500" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-[#1a1a1a]">#Гость#####</div>
+                        <div className="text-xs text-gray-400 flex items-center gap-1">
+                          Номер присвоится автоматически ·
+                          <button type="button" onClick={onLogin} className="text-[#E84A30] hover:underline">Войти</button>
+                        </div>
+                      </div>
+                    </>
                   )}
-                  <div>
-                    <div className="text-sm font-semibold text-[#1a1a1a]">{user.name}</div>
-                    <div className="text-xs text-gray-400">{user.provider === "google" ? "Google" : "ВКонтакте"}</div>
-                  </div>
                 </div>
 
                 <div>
@@ -1164,6 +1177,10 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
                 <div className="shrink-0">
                   {review.user_avatar ? (
                     <img src={review.user_avatar} alt={review.user_name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : review.provider === "guest" ? (
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Icon name="User" size={18} className="text-gray-400" />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 bg-[#E84A30] rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-bold">{review.user_name[0]}</span>
@@ -1174,7 +1191,9 @@ function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user
                   <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
                     <div>
                       <span className="font-semibold text-[#1a1a1a] text-sm">{review.user_name}</span>
-                      <span className="text-gray-400 text-xs ml-2">{review.provider === "google" ? "Google" : "ВКонтакте"}</span>
+                      <span className="text-gray-400 text-xs ml-2">
+                        {review.provider === "google" ? "Google" : review.provider === "vk" ? "ВКонтакте" : "Гость"}
+                      </span>
                     </div>
                     <span className="text-xs text-gray-400">
                       {new Date(review.created_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}

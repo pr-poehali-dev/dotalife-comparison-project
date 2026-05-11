@@ -1,7 +1,7 @@
 """
 Отзывы пользователей DotaLife.
 GET  /  — список всех отзывов
-POST /  — добавить отзыв (требует X-Session-Token)
+POST /  — добавить отзыв (авторизованный или гость)
 """
 import os
 import json
@@ -23,10 +23,6 @@ def get_db():
 def json_response(data, status=200):
     return {"statusCode": status, "headers": {**CORS, "Content-Type": "application/json"}, "body": json.dumps(data, ensure_ascii=False, default=str)}
 
-def get_user_by_token(cur, token):
-    cur.execute(f"SELECT id, name, avatar, provider FROM {SCHEMA}.users WHERE session_token = %s", (token,))
-    return cur.fetchone()
-
 def handler(event: dict, context) -> dict:
     if event.get("httpMethod") == "OPTIONS":
         return {"statusCode": 200, "headers": CORS, "body": ""}
@@ -38,16 +34,21 @@ def handler(event: dict, context) -> dict:
         conn = get_db()
         cur = conn.cursor()
         cur.execute(f"""
-            SELECT r.id, r.rating, r.text, r.created_at, u.name, u.avatar, u.provider
+            SELECT
+                r.id, r.rating, r.text, r.created_at,
+                COALESCE(u.name, r.guest_name) AS user_name,
+                COALESCE(u.avatar, '') AS user_avatar,
+                COALESCE(u.provider, 'guest') AS provider
             FROM {SCHEMA}.reviews r
-            JOIN {SCHEMA}.users u ON r.user_id = u.id
+            LEFT JOIN {SCHEMA}.users u ON r.user_id = u.id
             ORDER BY r.created_at DESC
             LIMIT 100
         """)
         rows = cur.fetchall()
         conn.close()
         reviews = [
-            {"id": r[0], "rating": r[1], "text": r[2], "created_at": r[3], "user_name": r[4], "user_avatar": r[5], "provider": r[6]}
+            {"id": r[0], "rating": r[1], "text": r[2], "created_at": r[3],
+             "user_name": r[4], "user_avatar": r[5], "provider": r[6]}
             for r in rows
         ]
         return json_response({"reviews": reviews})
@@ -56,8 +57,6 @@ def handler(event: dict, context) -> dict:
     if method == "POST":
         headers = event.get("headers") or {}
         token = headers.get("X-Session-Token") or headers.get("x-session-token")
-        if not token:
-            return json_response({"error": "Необходима авторизация"}, 401)
 
         body = json.loads(event.get("body") or "{}")
         rating = body.get("rating")
@@ -72,26 +71,46 @@ def handler(event: dict, context) -> dict:
 
         conn = get_db()
         cur = conn.cursor()
-        user = get_user_by_token(cur, token)
-        if not user:
-            conn.close()
-            return json_response({"error": "Сессия недействительна"}, 401)
 
-        # Проверяем, не оставлял ли уже отзыв
-        cur.execute(f"SELECT id FROM {SCHEMA}.reviews WHERE user_id = %s", (user[0],))
-        if cur.fetchone():
+        # Авторизованный пользователь
+        if token:
+            cur.execute(f"SELECT id, name, avatar, provider FROM {SCHEMA}.users WHERE session_token = %s", (token,))
+            user = cur.fetchone()
+            if not user:
+                conn.close()
+                return json_response({"error": "Сессия недействительна"}, 401)
+
+            cur.execute(f"SELECT id FROM {SCHEMA}.reviews WHERE user_id = %s", (user[0],))
+            if cur.fetchone():
+                conn.close()
+                return json_response({"error": "Вы уже оставили отзыв"}, 409)
+
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.reviews (user_id, rating, text) VALUES (%s, %s, %s) RETURNING id, created_at",
+                (user[0], rating, text)
+            )
+            row = cur.fetchone()
             conn.close()
-            return json_response({"error": "Вы уже оставили отзыв"}, 409)
+            return json_response({
+                "review": {"id": row[0], "rating": rating, "text": text, "created_at": row[1],
+                           "user_name": user[1], "user_avatar": user[2], "provider": user[3]}
+            }, 201)
+
+        # Гость — получаем следующий номер из sequence
+        cur.execute("SELECT nextval('guest_counter')")
+        guest_num = cur.fetchone()[0]
+        guest_name = f"#Гость{guest_num:05d}"
 
         cur.execute(
-            f"INSERT INTO {SCHEMA}.reviews (user_id, rating, text) VALUES (%s, %s, %s) RETURNING id, created_at",
-            (user[0], rating, text)
+            f"INSERT INTO {SCHEMA}.reviews (user_id, guest_name, rating, text) VALUES (NULL, %s, %s, %s) RETURNING id, created_at",
+            (guest_name, rating, text)
         )
         row = cur.fetchone()
         conn.close()
         return json_response({
             "review": {"id": row[0], "rating": rating, "text": text, "created_at": row[1],
-                       "user_name": user[1], "user_avatar": user[2], "provider": user[3]}
+                       "user_name": guest_name, "user_avatar": "", "provider": "guest"},
+            "guest_name": guest_name
         }, 201)
 
     return json_response({"error": "Method not allowed"}, 405)
