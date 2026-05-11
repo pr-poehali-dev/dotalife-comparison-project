@@ -171,15 +171,40 @@ const TOURNAMENTS = [
   { name: "PGL Wallachia S3", prize: "$600,000", status: "finished", date: "10–18 фев", teams: 8, location: "Онлайн" },
 ];
 
+const CDN = "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items";
+
 const ITEMS = [
-  { name: "Aghanim's Scepter", type: "Аксессуар", cost: 4200, color: "#7C3AED", winrate: 58.2, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/ultimate_scepter.png" },
-  { name: "Black King Bar", type: "Броня", cost: 4050, color: "#D97706", winrate: 54.1, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png" },
-  { name: "Blink Dagger", type: "Артефакт", cost: 2250, color: "#E84A30", winrate: 55.7, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png" },
-  { name: "Linken's Sphere", type: "Аксессуар", cost: 4700, color: "#2563EB", winrate: 56.3, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/sphere.png" },
-  { name: "Bloodthorn", type: "Оружие", cost: 6800, color: "#DC2626", winrate: 53.9, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/bloodthorn.png" },
-  { name: "Daedalus", type: "Оружие", cost: 5350, color: "#0891B2", winrate: 57.4, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/greater_crit.png" },
-  { name: "Eye of Skadi", type: "Аксессуар", cost: 5400, color: "#16A34A", winrate: 55.0, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/skadi.png" },
-  { name: "Satanic", type: "Броня", cost: 5050, color: "#6D28D9", winrate: 52.8, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/satanic.png" },
+  // Оружие
+  { name: "Daedalus", type: "Оружие", cost: 5350, color: "#0891B2", winrate: 57.4, img: `${CDN}/greater_crit.png`, desc: "Даёт шанс нанести критический урон ×225% при атаке. Один из мощнейших предметов для керри-героев." },
+  { name: "Bloodthorn", type: "Оружие", cost: 6800, color: "#DC2626", winrate: 53.9, img: `${CDN}/bloodthorn.png`, desc: "Обездвиживает цель, заставляя её получать критический урон от каждой атаки. Орбовый эффект замедляет атаку врага." },
+  { name: "Monkey King Bar", type: "Оружие", cost: 4975, color: "#D97706", winrate: 54.8, img: `${CDN}/monkey_king_bar.png`, desc: "Даёт шанс нанести мини-оглушение при атаке. Пробивает уклонение — идеален против PA и Windranger." },
+  { name: "Mjollnir", type: "Оружие", cost: 5600, color: "#4338CA", winrate: 53.2, img: `${CDN}/mjollnir.png`, desc: "При атаке бьёт молнией по соседним врагам. Активная способность: щит молний защищает союзника." },
+  { name: "Ethereal Blade", type: "Оружие", cost: 4700, color: "#7C3AED", winrate: 52.1, img: `${CDN}/ethereal_blade.png`, desc: "Переводит цель в эфирное состояние — она не может атаковать, но получает +40% урона от магии. Мощь для магов." },
+  { name: "Rapier", type: "Оружие", cost: 6200, color: "#E84A30", winrate: 51.0, img: `${CDN}/rapier.png`, desc: "Даёт +280 к чистому урону. При смерти выпадает и может быть подобрана врагом. Для тех, кто идёт ва-банк." },
+
+  // Броня
+  { name: "Black King Bar", type: "Броня", cost: 4050, color: "#D97706", winrate: 54.1, img: `${CDN}/black_king_bar.png`, desc: "Активирует магическую неуязвимость на 4–10 секунд. Спасает от контроля и массовых заклинаний противника." },
+  { name: "Satanic", type: "Броня", cost: 5050, color: "#6D28D9", winrate: 52.8, img: `${CDN}/satanic.png`, desc: "Пассивно даёт лайфстил. Активная способность: 3 секунды 175% лайфстила — позволяет восстановить все HP в бою." },
+  { name: "Shiva's Guard", type: "Броня", cost: 4850, color: "#0891B2", winrate: 53.5, img: `${CDN}/shivas_guard.png`, desc: "Активна: ледяная волна замедляет врагов. Пассивно снижает скорость их атаки. Незаменим для инициаторов." },
+  { name: "Heart of Tarrasque", type: "Броня", cost: 5000, color: "#DC2626", winrate: 55.6, img: `${CDN}/heart.png`, desc: "Даёт 45 силы и +1060 HP. Восстанавливает 1.6% от макс. HP в секунду вне боя. Делает героя практически неубиваемым." },
+  { name: "Assault Cuirass", type: "Броня", cost: 5300, color: "#16A34A", winrate: 54.3, img: `${CDN}/assault.png`, desc: "Даёт +10 брони союзникам и снижает броню врагов на -5. Ауры складываются и дают огромное преимущество в командных боях." },
+  { name: "Crimson Guard", type: "Броня", cost: 3700, color: "#B91C1C", winrate: 53.0, img: `${CDN}/crimson_guard.png`, desc: "Активный щит поглощает урон для команды. Незаменим против героев с множеством атак (Phantom Lancer, Medusa)." },
+
+  // Артефакт
+  { name: "Blink Dagger", type: "Артефакт", cost: 2250, color: "#E84A30", winrate: 55.7, img: `${CDN}/blink.png`, desc: "Телепортирует героя на 1200 единиц в выбранном направлении. Базовый предмет инициации и побега для большинства героев." },
+  { name: "Force Staff", type: "Артефакт", cost: 2200, color: "#2563EB", winrate: 54.0, img: `${CDN}/force_staff.png`, desc: "Толкает себя или союзника на 600 единиц вперёд. Универсальный предмет: спасение, инициация, преследование." },
+  { name: "Shadow Blade", type: "Артефакт", cost: 3000, color: "#4B5563", winrate: 52.5, img: `${CDN}/invis_sword.png`, desc: "Уходит в невидимость для инициации или отхода. Атака из невидимости наносит 175 бонусного урона." },
+  { name: "Scythe of Vyse", type: "Артефакт", cost: 5675, color: "#16A34A", winrate: 56.9, img: `${CDN}/sheepstick.png`, desc: "Превращает врага в свинью на 3.5 секунды. Лучший хардовый контроль в игре — снимает BKB и блокирует все способности." },
+  { name: "Orchid Malevolence", type: "Артефакт", cost: 3475, color: "#9333EA", winrate: 53.7, img: `${CDN}/orchid.png`, desc: "Глушит врага на 5 секунд, накапливая 30% от всего нанесённого урона — которые выплёскиваются в конце эффекта." },
+  { name: "Eul's Scepter", type: "Артефакт", cost: 2725, color: "#0EA5E9", winrate: 53.1, img: `${CDN}/cyclone.png`, desc: "Поднимает цель в воздух на 2.5 секунды, делая её неуязвимой. Позволяет уйти от контроля или настроить заклинания." },
+
+  // Аксессуар
+  { name: "Aghanim's Scepter", type: "Аксессуар", cost: 4200, color: "#7C3AED", winrate: 58.2, img: `${CDN}/ultimate_scepter.png`, desc: "Улучшает ультимейт или одну из способностей героя. Эффект уникален для каждого из 124 героев." },
+  { name: "Linken's Sphere", type: "Аксессуар", cost: 4700, color: "#2563EB", winrate: 56.3, img: `${CDN}/sphere.png`, desc: "Блокирует одно враждебное заклинание раз в 14 секунд. Лучшая защита от точечного контроля (hex, hex, hex)." },
+  { name: "Eye of Skadi", type: "Аксессуар", cost: 5400, color: "#16A34A", winrate: 55.0, img: `${CDN}/skadi.png`, desc: "Атаки замедляют врага — его скорость передвижения и атаки снижаются. Нейтрализует лайфстил у вражеских керри." },
+  { name: "Manta Style", type: "Аксессуар", cost: 4600, color: "#059669", winrate: 54.7, img: `${CDN}/manta.png`, desc: "Создаёт двух иллюзий героя на 20 секунд. Снимает большинство эффектов силенса и замедлений при активации." },
+  { name: "Butterfly", type: "Аксессуар", cost: 4975, color: "#DB2777", winrate: 55.3, img: `${CDN}/butterfly.png`, desc: "Даёт 35% уклонение от физических атак и +30 к ловкости. Превращает ловких героев в неуловимых убийц." },
+  { name: "Aegis of the Immortal", type: "Аксессуар", cost: 0, color: "#F59E0B", winrate: 61.0, img: `${CDN}/aegis.png`, desc: "Выпадает с Рошана. Возрождает героя с полным HP и маной на месте гибели. Можно взять только один раз." },
 ];
 
 const STATS = [
@@ -701,45 +726,143 @@ function PageStats({ onGo }: { onGo: (s: string) => void }) {
 }
 
 function PageItems() {
+  const [filter, setFilter] = useState("Все");
+  const [selected, setSelected] = useState<typeof ITEMS[0] | null>(null);
+
+  const filtered = filter === "Все" ? ITEMS : ITEMS.filter(i => i.type === filter);
+
+  const CATEGORIES = [
+    { label: "Все", icon: "LayoutGrid" },
+    { label: "Оружие", icon: "Sword" },
+    { label: "Броня", icon: "Shield" },
+    { label: "Артефакт", icon: "Zap" },
+    { label: "Аксессуар", icon: "Gem" },
+  ];
+
   return (
     <div className="py-10">
-      <SectionHeader title="Предметы" subtitle="Все предметы Dota 2 · Актуальный патч" />
-      <div className="flex gap-2 mb-5 flex-wrap">
-        {["Все", "Оружие", "Броня", "Артефакт", "Аксессуар"].map((f) => (
-          <button key={f} className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${f === "Все" ? "bg-[#1a1a1a] text-white border-[#1a1a1a]" : "border-gray-200 text-gray-600 hover:border-[#E84A30] hover:text-[#E84A30]"}`}>{f}</button>
+      <SectionHeader title="Предметы" subtitle={`Dota 2 · Актуальный патч · ${filtered.length} предметов`} />
+
+      {/* Фильтры */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {CATEGORIES.map((f) => (
+          <button
+            key={f.label}
+            onClick={() => { setFilter(f.label); setSelected(null); }}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 ${
+              filter === f.label
+                ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                : "border-gray-200 text-gray-600 hover:border-[#E84A30] hover:text-[#E84A30]"
+            }`}
+          >
+            <Icon name={f.icon} size={13} />
+            {f.label}
+          </button>
         ))}
       </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {ITEMS.map((item) => (
-          <div key={item.name} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
-            {/* Item image banner */}
-            <div className="relative h-24 flex items-center justify-center overflow-hidden" style={{ backgroundColor: item.color + "18" }}>
-              <img
-                src={item.img}
-                alt={item.name}
-                className="h-16 w-auto object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  target.nextElementSibling?.classList.remove("hidden");
-                }}
-              />
-              <div className="hidden w-14 h-14 rounded-lg flex items-center justify-center text-white text-2xl font-display font-bold" style={{ backgroundColor: item.color }}>{item.name[0]}</div>
-              <span className={`absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded ${item.winrate >= 55 ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                WR {item.winrate}%
-              </span>
-            </div>
-            <div className="p-3">
-              <div className="font-semibold text-[#1a1a1a] text-sm leading-snug mb-0.5">{item.name}</div>
-              <div className="text-gray-400 text-xs mb-2">{item.type}</div>
-              <div className="flex items-center gap-1">
-                <Icon name="Coins" size={12} className="text-amber-500" />
-                <span className="text-sm font-bold text-[#1a1a1a]">{item.cost.toLocaleString()}</span>
-                <span className="text-xs text-gray-400 ml-0.5">золота</span>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Список предметов */}
+        <div className={`${selected ? "lg:col-span-2" : "lg:col-span-3"}`}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((item) => (
+              <div
+                key={item.name}
+                onClick={() => setSelected(selected?.name === item.name ? null : item)}
+                className={`bg-white rounded-xl border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group ${
+                  selected?.name === item.name ? "border-[#E84A30] shadow-md" : "border-gray-100"
+                }`}
+              >
+                <div className="relative h-24 flex items-center justify-center overflow-hidden" style={{ backgroundColor: item.color + "18" }}>
+                  <img
+                    src={item.img}
+                    alt={item.name}
+                    className="h-16 w-auto object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
+                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+                  />
+                  <span className={`absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded ${item.winrate >= 55 ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                    WR {item.winrate}%
+                  </span>
+                  <span className="absolute top-2 left-2 text-xs px-1.5 py-0.5 rounded bg-black/40 text-white">{item.type}</span>
+                </div>
+                <div className="p-3">
+                  <div className="font-semibold text-[#1a1a1a] text-sm leading-snug mb-1">{item.name}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Icon name="Coins" size={12} className="text-amber-500" />
+                      <span className="text-sm font-bold text-[#1a1a1a]">{item.cost > 0 ? item.cost.toLocaleString() : "Рошан"}</span>
+                    </div>
+                    <Icon name="ChevronRight" size={14} className={`transition-transform ${selected?.name === item.name ? "rotate-90 text-[#E84A30]" : "text-gray-300"}`} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Детальная карточка */}
+        {selected && (
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden sticky top-20 shadow-lg">
+              {/* Header */}
+              <div className="relative h-40 flex items-center justify-center" style={{ backgroundColor: selected.color + "20" }}>
+                <img
+                  src={selected.img}
+                  alt={selected.name}
+                  className="h-24 w-auto object-contain drop-shadow-2xl"
+                  onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+                />
+                <button onClick={() => setSelected(null)} className="absolute top-3 right-3 bg-black/20 hover:bg-black/40 text-white rounded-full p-1 transition-colors">
+                  <Icon name="X" size={14} />
+                </button>
+                <span className="absolute bottom-3 left-3 text-xs bg-black/40 text-white px-2 py-0.5 rounded">{selected.type}</span>
+              </div>
+
+              <div className="p-5">
+                <h3 className="font-display text-xl font-bold text-[#1a1a1a] mb-1">{selected.name}</h3>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-amber-50 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Icon name="Coins" size={14} className="text-amber-500" />
+                    </div>
+                    <div className="font-display text-lg font-bold text-[#1a1a1a]">
+                      {selected.cost > 0 ? selected.cost.toLocaleString() : "—"}
+                    </div>
+                    <div className="text-xs text-gray-400">{selected.cost > 0 ? "золота" : "с Рошана"}</div>
+                  </div>
+                  <div className={`rounded-lg p-3 text-center ${selected.winrate >= 55 ? "bg-green-50" : "bg-gray-50"}`}>
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Icon name="TrendingUp" size={14} className={selected.winrate >= 55 ? "text-green-500" : "text-gray-400"} />
+                    </div>
+                    <div className={`font-display text-lg font-bold ${selected.winrate >= 55 ? "text-green-600" : "text-gray-600"}`}>
+                      {selected.winrate}%
+                    </div>
+                    <div className="text-xs text-gray-400">винрейт</div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="mb-4">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Описание</div>
+                  <p className="text-sm text-gray-600 leading-relaxed">{selected.desc}</p>
+                </div>
+
+                {/* Category badge */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-600">{selected.type}</span>
+                  {selected.winrate >= 55 && (
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-green-100 text-green-700">Высокий WR</span>
+                  )}
+                  {selected.cost === 0 && (
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-700">Рошан</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
