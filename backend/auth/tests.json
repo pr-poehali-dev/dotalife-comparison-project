@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Get current user (no token)",
+      "method": "GET",
+      "path": "/?action=me",
+      "expectedStatus": 200,
+      "expectedBody": {"user": null},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

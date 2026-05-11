@@ -1,5 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
+
+const AUTH_URL = "https://functions.poehali.dev/1b571a81-6a53-46ef-b860-58eb38a8cda6";
+const REVIEWS_URL = "https://functions.poehali.dev/cb55cf00-094f-46ed-ae4b-b3e2f7971959";
+
+function useAuth() {
+  const [user, setUser] = useState<{ id: number; name: string; email: string; avatar: string; provider: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMe = useCallback(async () => {
+    const token = localStorage.getItem("dl_token");
+    if (!token) { setLoading(false); return; }
+    try {
+      const res = await fetch(`${AUTH_URL}?action=me`, { headers: { "X-Session-Token": token } });
+      const data = await res.json();
+      setUser(data.user || null);
+    } catch { setUser(null); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // Обработка OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("dl_token", token);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    fetchMe();
+  }, [fetchMe]);
+
+  const logout = async () => {
+    const token = localStorage.getItem("dl_token");
+    if (token) await fetch(`${AUTH_URL}?action=logout`, { method: "POST", headers: { "X-Session-Token": token } });
+    localStorage.removeItem("dl_token");
+    setUser(null);
+  };
+
+  return { user, loading, logout, refetch: fetchMe };
+}
+
+function LoginModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 z-10">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <Icon name="X" size={20} />
+        </button>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-9 h-9 bg-[#E84A30] rounded-sm flex items-center justify-center">
+            <span className="text-white font-display text-sm font-bold">DL</span>
+          </div>
+          <div>
+            <h2 className="font-display text-xl font-bold text-[#1a1a1a]">Войти в DotaLife</h2>
+            <p className="text-gray-400 text-xs">Чтобы оставить отзыв и сохранять данные</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <a
+            href={`${AUTH_URL}?provider=google`}
+            className="flex items-center gap-3 w-full border border-gray-200 rounded-xl px-4 py-3 hover:border-gray-300 hover:bg-gray-50 transition-all"
+          >
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span className="text-sm font-medium text-[#1a1a1a]">Продолжить с Google</span>
+          </a>
+
+          <a
+            href={`${AUTH_URL}?provider=vk`}
+            className="flex items-center gap-3 w-full bg-[#0077FF] rounded-xl px-4 py-3 hover:bg-[#0066DD] transition-colors"
+          >
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="white">
+              <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm2.68 13.5h-1.5c-.57 0-.74-.45-1.76-1.5-.88-.9-1.27-.9-1.5-.9-.3 0-.39.09-.39.52v1.36c0 .37-.12.6-1.1.6-1.62 0-3.41-.98-4.67-2.8C5.64 10.5 5.1 8.7 5.1 8.3c0-.23.09-.45.52-.45h1.5c.39 0 .54.18.69.6.76 2.2 2.04 4.13 2.57 4.13.2 0 .29-.09.29-.6V9.96c-.06-1.08-.63-1.17-.63-1.55 0-.18.15-.37.39-.37h2.36c.33 0 .45.18.45.57v3.06c0 .33.15.45.24.45.2 0 .36-.12.72-.48 1.11-1.25 1.9-3.17 1.9-3.17.1-.23.3-.45.69-.45h1.5c.45 0 .55.23.45.57-.19.88-2.04 3.5-2.04 3.5-.16.26-.22.38 0 .67.16.21.69.67 1.04 1.08.65.74 1.14 1.36 1.27 1.79.13.42-.09.63-.52.63z"/>
+            </svg>
+            <span className="text-sm font-medium text-white">Продолжить с ВКонтакте</span>
+          </a>
+        </div>
+
+        <p className="text-center text-xs text-gray-400 mt-5">
+          Входя, вы соглашаетесь с правилами сайта
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const NAV_ITEMS = [
   { label: "Герои", icon: "Sword" },
@@ -10,6 +100,7 @@ const NAV_ITEMS = [
   { label: "Турниры", icon: "Trophy" },
   { label: "Рейтинги", icon: "Star" },
   { label: "Гайды", icon: "BookOpen" },
+  { label: "Отзывы", icon: "MessageSquare" },
 ];
 
 const HERO_IMAGES: Record<string, string> = {
@@ -125,11 +216,14 @@ const RATINGS = [
   { rank: 10, name: "KuroKy", team: "Nigma", mmr: 10987, wins: 2876, losses: 2541, winrate: 53.1, country: "🇩🇪" },
 ];
 
-function NavHeader({ activeSection, setActiveSection, mobileMenuOpen, setMobileMenuOpen }: {
+function NavHeader({ activeSection, setActiveSection, mobileMenuOpen, setMobileMenuOpen, user, onLogin, onLogout }: {
   activeSection: string;
   setActiveSection: (s: string) => void;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (v: boolean) => void;
+  user: ReturnType<typeof useAuth>["user"];
+  onLogin: () => void;
+  onLogout: () => void;
 }) {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
@@ -166,9 +260,28 @@ function NavHeader({ activeSection, setActiveSection, mobileMenuOpen, setMobileM
               <Icon name="Search" size={14} className="text-gray-400" />
               <input className="bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none w-full" placeholder="Поиск..." />
             </div>
-            <button className="hidden md:block bg-[#1a1a1a] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#E84A30] transition-colors duration-200">
-              Войти
-            </button>
+            {user ? (
+              <div className="hidden md:flex items-center gap-2">
+                <button onClick={() => setActiveSection("Отзывы")} className="text-sm text-gray-500 hover:text-[#1a1a1a] transition-colors px-2 py-1">Отзывы</button>
+                <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-1.5 cursor-pointer group relative">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-6 h-6 bg-[#E84A30] rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">{user.name[0]}</span>
+                    </div>
+                  )}
+                  <span className="text-sm font-medium text-[#1a1a1a] max-w-[100px] truncate">{user.name}</span>
+                  <button onClick={onLogout} className="text-xs text-gray-400 hover:text-red-500 transition-colors ml-1">
+                    <Icon name="LogOut" size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={onLogin} className="hidden md:block bg-[#1a1a1a] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#E84A30] transition-colors duration-200">
+                Войти
+              </button>
+            )}
             <button className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <Icon name={mobileMenuOpen ? "X" : "Menu"} size={20} />
             </button>
@@ -859,6 +972,226 @@ function PageGuides() {
   );
 }
 
+function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onChange?.(s)}
+          onMouseEnter={() => onChange && setHovered(s)}
+          onMouseLeave={() => onChange && setHovered(0)}
+          className={`text-2xl transition-transform ${onChange ? "hover:scale-110 cursor-pointer" : "cursor-default"}`}
+        >
+          <span className={(hovered || value) >= s ? "text-amber-400" : "text-gray-200"}>★</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PageReviews({ user, onLogin }: { user: ReturnType<typeof useAuth>["user"]; onLogin: () => void }) {
+  const [reviews, setReviews] = useState<Array<{id: number; rating: number; text: string; created_at: string; user_name: string; user_avatar: string; provider: string}>>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [rating, setRating] = useState(0);
+  const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [userHasReview, setUserHasReview] = useState(false);
+
+  const loadReviews = useCallback(async () => {
+    setLoadingReviews(true);
+    try {
+      const res = await fetch(REVIEWS_URL);
+      const data = await res.json();
+      setReviews(data.reviews || []);
+      if (user) {
+        setUserHasReview(data.reviews?.some((r: {user_name: string}) => r.user_name === user.name) || false);
+      }
+    } catch { /* ignore */ }
+    setLoadingReviews(false);
+  }, [user]);
+
+  useEffect(() => { loadReviews(); }, [loadReviews]);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rating) { setError("Поставьте оценку"); return; }
+    if (text.trim().length < 5) { setError("Напишите отзыв (минимум 5 символов)"); return; }
+    setError("");
+    setSubmitting(true);
+    const token = localStorage.getItem("dl_token");
+    const res = await fetch(REVIEWS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Session-Token": token || "" },
+      body: JSON.stringify({ rating, text: text.trim() }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || "Ошибка"); setSubmitting(false); return; }
+    setSuccess(true);
+    setRating(0);
+    setText("");
+    setUserHasReview(true);
+    loadReviews();
+    setSubmitting(false);
+  };
+
+  const avgRating = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "—";
+
+  return (
+    <div className="py-10">
+      <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-[#1a1a1a] tracking-tight">Отзывы</h2>
+          <p className="text-gray-500 text-sm mt-0.5">Что говорят игроки о DotaLife</p>
+        </div>
+        {reviews.length > 0 && (
+          <div className="bg-white border border-gray-100 rounded-xl px-5 py-3 flex items-center gap-3">
+            <span className="font-display text-3xl font-bold text-[#1a1a1a]">{avgRating}</span>
+            <div>
+              <StarRating value={Math.round(Number(avgRating))} />
+              <p className="text-xs text-gray-400 mt-0.5">{reviews.length} {reviews.length === 1 ? "отзыв" : reviews.length < 5 ? "отзыва" : "отзывов"}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Form */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl border border-gray-100 p-6 sticky top-20">
+            <h3 className="font-display font-bold text-[#1a1a1a] mb-4">Оставить отзыв</h3>
+            {!user ? (
+              <div className="text-center py-4">
+                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Icon name="User" size={24} className="text-gray-400" />
+                </div>
+                <p className="text-gray-500 text-sm mb-4">Войдите, чтобы оставить отзыв</p>
+                <button onClick={onLogin} className="w-full bg-[#E84A30] text-white font-medium py-2.5 rounded-lg hover:bg-[#cf3d26] transition-colors">
+                  Войти
+                </button>
+              </div>
+            ) : userHasReview ? (
+              <div className="text-center py-4">
+                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Icon name="CheckCircle" size={24} className="text-green-600" />
+                </div>
+                <p className="text-gray-500 text-sm">Вы уже оставили отзыв. Спасибо!</p>
+              </div>
+            ) : success ? (
+              <div className="text-center py-4">
+                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Icon name="CheckCircle" size={24} className="text-green-600" />
+                </div>
+                <p className="font-semibold text-[#1a1a1a] mb-1">Отзыв опубликован!</p>
+                <p className="text-gray-400 text-sm">Спасибо за обратную связь</p>
+              </div>
+            ) : (
+              <form onSubmit={submit} className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-8 h-8 bg-[#E84A30] rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">{user.name[0]}</span>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-sm font-semibold text-[#1a1a1a]">{user.name}</div>
+                    <div className="text-xs text-gray-400">{user.provider === "google" ? "Google" : "ВКонтакте"}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Оценка</label>
+                  <StarRating value={rating} onChange={setRating} />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-2">Ваш отзыв</label>
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Расскажите о своём опыте использования DotaLife..."
+                    rows={4}
+                    maxLength={1000}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-[#1a1a1a] placeholder-gray-400 focus:outline-none focus:border-[#E84A30] resize-none transition-colors"
+                  />
+                  <div className="text-right text-xs text-gray-400 mt-1">{text.length}/1000</div>
+                </div>
+
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-[#E84A30] text-white font-medium py-2.5 rounded-lg hover:bg-[#cf3d26] transition-colors disabled:opacity-50"
+                >
+                  {submitting ? "Отправка..." : "Опубликовать"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Reviews list */}
+        <div className="lg:col-span-2 space-y-4">
+          {loadingReviews ? (
+            Array.from({length: 3}).map((_, i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full" />
+                  <div className="flex-1">
+                    <div className="h-3 bg-gray-100 rounded w-32 mb-2" />
+                    <div className="h-2 bg-gray-100 rounded w-20" />
+                  </div>
+                </div>
+                <div className="h-3 bg-gray-100 rounded mb-2" />
+                <div className="h-3 bg-gray-100 rounded w-3/4" />
+              </div>
+            ))
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-xl border border-gray-100">
+              <Icon name="MessageSquare" size={40} className="text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-400">Пока нет отзывов. Будьте первым!</p>
+            </div>
+          ) : reviews.map((review) => (
+            <div key={review.id} className="bg-white rounded-xl border border-gray-100 p-5 hover:shadow-sm transition-shadow">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0">
+                  {review.user_avatar ? (
+                    <img src={review.user_avatar} alt={review.user_name} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 bg-[#E84A30] rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">{review.user_name[0]}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+                    <div>
+                      <span className="font-semibold text-[#1a1a1a] text-sm">{review.user_name}</span>
+                      <span className="text-gray-400 text-xs ml-2">{review.provider === "google" ? "Google" : "ВКонтакте"}</span>
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {new Date(review.created_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
+                    </span>
+                  </div>
+                  <StarRating value={review.rating} />
+                  <p className="text-gray-600 text-sm mt-2 leading-relaxed">{review.text}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeSection({ onGo }: { onGo: (s: string) => void }) {
   return (
     <>
@@ -1060,6 +1393,8 @@ function HomeSection({ onGo }: { onGo: (s: string) => void }) {
 export default function Index() {
   const [activeSection, setActiveSection] = useState("Главная");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const { user, logout } = useAuth();
 
   const navigate = (section: string) => {
     setActiveSection(section);
@@ -1078,17 +1413,22 @@ export default function Index() {
       case "Рейтинги": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageRatings onGo={navigate} /></div>;
       case "Гайды": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageGuides /></div>;
       case "Pudge": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PagePudge onGo={navigate} /></div>;
+      case "Отзывы": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageReviews user={user} onLogin={() => setShowLogin(true)} /></div>;
       default: return <HomeSection onGo={navigate} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F8F7F5] font-body">
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       <NavHeader
         activeSection={activeSection}
         setActiveSection={navigate}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
+        user={user}
+        onLogin={() => setShowLogin(true)}
+        onLogout={logout}
       />
 
       {renderSection()}
