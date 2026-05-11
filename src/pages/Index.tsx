@@ -52,12 +52,12 @@ const MATCHES = [
 ];
 
 const GUIDES = [
-  { title: "Invoker: полный гайд 2026", author: "Miracle-", views: "241K", duration: "34:12", tier: "Про", hero: "Invoker" },
-  { title: "Anti-Mage: фарм маршруты", author: "Topson", views: "187K", duration: "22:45", tier: "Про", hero: "Anti-Mage" },
-  { title: "Pudge: крюки и позиционирование", author: "Dendi", views: "312K", duration: "28:03", tier: "Легенда", hero: "Pudge" },
-  { title: "Crystal Maiden: расстановка вардов", author: "GH", views: "98K", duration: "18:30", tier: "Про", hero: "Crystal Maiden" },
-  { title: "Phantom Assassin: выбор предметов", author: "Ana", views: "155K", duration: "25:10", tier: "Легенда", hero: "Phantom Assassin" },
-  { title: "Lina: агрессивная мид-линия", author: "Nisha", views: "203K", duration: "31:05", tier: "Про", hero: "Lina" },
+  { title: "Invoker: полный гайд 2026", author: "Miracle-", views: "241K", duration: "34:12", tier: "Про", hero: "Invoker", videoId: "6wSvk5P1D_I" },
+  { title: "Anti-Mage: фарм маршруты", author: "Topson", views: "187K", duration: "22:45", tier: "Про", hero: "Anti-Mage", videoId: "F9GnFofl6ns" },
+  { title: "Pudge: крюки и позиционирование", author: "Dendi", views: "312K", duration: "28:03", tier: "Легенда", hero: "Pudge", videoId: "yFyamgrBq30" },
+  { title: "Crystal Maiden: расстановка вардов", author: "GH", views: "98K", duration: "18:30", tier: "Про", hero: "Crystal Maiden", videoId: "Jp5AMfYTN6Y" },
+  { title: "Phantom Assassin: выбор предметов", author: "Ana", views: "155K", duration: "25:10", tier: "Легенда", hero: "Phantom Assassin", videoId: "Jt8MDCcnfAw" },
+  { title: "Lina: агрессивная мид-линия", author: "Nisha", views: "203K", duration: "31:05", tier: "Про", hero: "Lina", videoId: "fwHUFUFwQrA" },
 ];
 
 const PLAYERS = [
@@ -774,34 +774,85 @@ function PageRatings({ onGo }: { onGo: (s: string) => void }) {
   );
 }
 
+function GuideCard({ guide }: { guide: typeof GUIDES[0] }) {
+  const [playing, setPlaying] = useState(false);
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 group flex flex-col">
+      {/* Thumbnail / Player */}
+      <div className="relative aspect-video bg-[#1a1a1a] overflow-hidden">
+        {playing ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${guide.videoId}?autoplay=1`}
+            title={guide.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          />
+        ) : (
+          <div className="relative w-full h-full cursor-pointer" onClick={() => setPlaying(true)}>
+            <img
+              src={`https://img.youtube.com/vi/${guide.videoId}/maxresdefault.jpg`}
+              alt={guide.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${guide.videoId}/hqdefault.jpg`;
+              }}
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
+            {/* Play button */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-14 h-14 bg-[#E84A30] rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-200">
+                <Icon name="Play" size={24} className="text-white translate-x-0.5" />
+              </div>
+            </div>
+            {/* Badges */}
+            <span className="absolute top-3 left-3 bg-[#E84A30] text-white text-xs font-medium px-2 py-0.5 rounded">{guide.tier}</span>
+            <span className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded">{guide.hero}</span>
+            <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded font-mono">{guide.duration}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-4 flex flex-col flex-1">
+        <h3 className="font-semibold text-[#1a1a1a] mb-3 leading-snug flex-1">{guide.title}</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-[#E84A30] rounded-full flex items-center justify-center shrink-0">
+              <span className="text-white text-xs font-bold">{guide.author[0]}</span>
+            </div>
+            <span className="text-sm text-gray-600 font-medium">{guide.author}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-gray-400">
+              <Icon name="Eye" size={12} />
+              <span className="text-xs">{guide.views}</span>
+            </div>
+            <a
+              href={`https://www.youtube.com/watch?v=${guide.videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84A30] transition-colors"
+            >
+              <Icon name="ExternalLink" size={12} />
+              YouTube
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PageGuides() {
   return (
     <div className="py-10">
-      <SectionHeader title="Видеогайды от профи" subtitle="Обучайся у лучших игроков мира" />
+      <SectionHeader title="Видеогайды от профи" subtitle="Реальные гайды от лучших игроков мира" />
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {GUIDES.map((guide) => (
-          <div key={guide.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
-            <div className="h-44 bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] relative flex items-center justify-center">
-              <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-[#E84A30] transition-colors duration-200">
-                <Icon name="Play" size={24} className="text-white translate-x-0.5" />
-              </div>
-              <span className="absolute top-3 left-3 bg-[#E84A30] text-white text-xs font-medium px-2 py-0.5 rounded">{guide.tier}</span>
-              <span className="absolute top-3 right-3 bg-black/40 text-white text-xs px-2 py-0.5 rounded">{guide.hero}</span>
-              <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded">{guide.duration}</span>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-[#1a1a1a] mb-2 leading-snug">{guide.title}</h3>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-[#E84A30] rounded-full flex items-center justify-center"><span className="text-white text-xs font-bold">{guide.author[0]}</span></div>
-                  <span className="text-sm text-gray-600 font-medium">{guide.author}</span>
-                </div>
-                <div className="flex items-center gap-1 text-gray-400">
-                  <Icon name="Eye" size={12} /><span className="text-xs">{guide.views}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GuideCard key={guide.videoId} guide={guide} />
         ))}
       </div>
     </div>
@@ -950,13 +1001,22 @@ function HomeSection({ onGo }: { onGo: (s: string) => void }) {
           <SectionHeader title="Видеогайды от профи" subtitle="Обучайся у лучших игроков мира" action="Все гайды" onAction={() => onGo("Гайды")} />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {GUIDES.slice(0, 3).map((guide) => (
-              <div key={guide.title} onClick={() => onGo("Гайды")} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
-                <div className="h-44 bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d] relative flex items-center justify-center">
-                  <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-[#E84A30] transition-colors duration-200">
-                    <Icon name="Play" size={24} className="text-white translate-x-0.5" />
+              <div key={guide.videoId} onClick={() => onGo("Гайды")} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+                <div className="relative aspect-video overflow-hidden bg-[#1a1a1a]">
+                  <img
+                    src={`https://img.youtube.com/vi/${guide.videoId}/maxresdefault.jpg`}
+                    alt={guide.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => { (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${guide.videoId}/hqdefault.jpg`; }}
+                  />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-[#E84A30] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Icon name="Play" size={20} className="text-white translate-x-0.5" />
+                    </div>
                   </div>
                   <span className="absolute top-3 left-3 bg-[#E84A30] text-white text-xs font-medium px-2 py-0.5 rounded">{guide.tier}</span>
-                  <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded">{guide.duration}</span>
+                  <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded font-mono">{guide.duration}</span>
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-[#1a1a1a] mb-2 leading-snug">{guide.title}</h3>
