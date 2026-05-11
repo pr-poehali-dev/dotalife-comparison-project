@@ -736,7 +736,7 @@ function PageItems() {
 
   const filtered = filter === "Все" ? ITEMS : ITEMS.filter(i => i.type === filter);
 
-  const playTango = (e: React.MouseEvent) => {
+  const playTango = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (tangoPlaying) {
       tangoAudioRef.current?.pause();
@@ -744,11 +744,42 @@ function PageItems() {
       setTangoPlaying(false);
       return;
     }
-    const audio = new Audio("https://www.myinstants.com/media/sounds/12-tango.mp3");
-    tangoAudioRef.current = audio;
-    audio.play().catch(() => {});
-    setTangoPlaying(true);
+
+    // Mail.ru CDN для публичных файлов — браузер отдаёт напрямую
+    // Формат: weblink/view/{weblink}
+    const sources = [
+      "https://cloclo52.cloud.mail.ru/weblink/view/o4Kx/LatnacTfT",
+      "https://cloud.mail.ru/public/o4Kx/LatnacTfT",
+    ];
+
+    const audio = new Audio();
+    let loaded = false;
+
+    for (const src of sources) {
+      try {
+        audio.src = src;
+        await new Promise<void>((resolve, reject) => {
+          audio.oncanplaythrough = () => resolve();
+          audio.onerror = () => reject();
+          audio.load();
+          setTimeout(() => reject(), 5000);
+        });
+        loaded = true;
+        break;
+      } catch {
+        continue;
+      }
+    }
+
+    if (!loaded) {
+      setTangoPlaying(false);
+      return;
+    }
+
     audio.onended = () => setTangoPlaying(false);
+    tangoAudioRef.current = audio;
+    audio.play().catch(() => setTangoPlaying(false));
+    setTangoPlaying(true);
   };
 
   const CATEGORIES = [
@@ -824,7 +855,7 @@ function PageItems() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         {isTango ? (
-                          <span className="text-sm font-bold text-green-600">{tangoPlaying ? "Играет... 🎵" : "Нажми и танцуй!"}</span>
+                          <span className="text-sm font-bold text-green-600">{tangoPlaying ? "Играет... 🎵" : "Двенадца-ать танго..."}</span>
                         ) : (
                           <>
                             <Icon name="Coins" size={12} className="text-amber-500" />
