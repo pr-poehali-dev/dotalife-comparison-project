@@ -81,14 +81,14 @@ const TOURNAMENTS = [
 ];
 
 const ITEMS = [
-  { name: "Aghanim's Scepter", type: "Аксессуар", cost: 4200, color: "#7C3AED", winrate: 58.2 },
-  { name: "Black King Bar", type: "Броня", cost: 4050, color: "#D97706", winrate: 54.1 },
-  { name: "Blink Dagger", type: "Артефакт", cost: 2250, color: "#E84A30", winrate: 55.7 },
-  { name: "Linken's Sphere", type: "Аксессуар", cost: 4700, color: "#2563EB", winrate: 56.3 },
-  { name: "Bloodthorn", type: "Оружие", cost: 6800, color: "#DC2626", winrate: 53.9 },
-  { name: "Daedalus", type: "Оружие", cost: 5350, color: "#0891B2", winrate: 57.4 },
-  { name: "Eye of Skadi", type: "Аксессуар", cost: 5400, color: "#16A34A", winrate: 55.0 },
-  { name: "Satanic", type: "Броня", cost: 5050, color: "#6D28D9", winrate: 52.8 },
+  { name: "Aghanim's Scepter", type: "Аксессуар", cost: 4200, color: "#7C3AED", winrate: 58.2, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/ultimate_scepter.png" },
+  { name: "Black King Bar", type: "Броня", cost: 4050, color: "#D97706", winrate: 54.1, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png" },
+  { name: "Blink Dagger", type: "Артефакт", cost: 2250, color: "#E84A30", winrate: 55.7, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png" },
+  { name: "Linken's Sphere", type: "Аксессуар", cost: 4700, color: "#2563EB", winrate: 56.3, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/sphere.png" },
+  { name: "Bloodthorn", type: "Оружие", cost: 6800, color: "#DC2626", winrate: 53.9, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/bloodthorn.png" },
+  { name: "Daedalus", type: "Оружие", cost: 5350, color: "#0891B2", winrate: 57.4, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/greater_crit.png" },
+  { name: "Eye of Skadi", type: "Аксессуар", cost: 5400, color: "#16A34A", winrate: 55.0, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/skadi.png" },
+  { name: "Satanic", type: "Броня", cost: 5050, color: "#6D28D9", winrate: 52.8, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/satanic.png" },
 ];
 
 const STATS = [
@@ -598,20 +598,32 @@ function PageItems() {
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {ITEMS.map((item) => (
-          <div key={item.name} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center text-white text-xl font-display font-bold" style={{ backgroundColor: item.color }}>{item.name[0]}</div>
-              <div>
-                <div className="font-semibold text-[#1a1a1a] text-sm leading-snug">{item.name}</div>
-                <div className="text-gray-400 text-xs">{item.type}</div>
-              </div>
+          <div key={item.name} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
+            {/* Item image banner */}
+            <div className="relative h-24 flex items-center justify-center overflow-hidden" style={{ backgroundColor: item.color + "18" }}>
+              <img
+                src={item.img}
+                alt={item.name}
+                className="h-16 w-auto object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                  target.nextElementSibling?.classList.remove("hidden");
+                }}
+              />
+              <div className="hidden w-14 h-14 rounded-lg flex items-center justify-center text-white text-2xl font-display font-bold" style={{ backgroundColor: item.color }}>{item.name[0]}</div>
+              <span className={`absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded ${item.winrate >= 55 ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                WR {item.winrate}%
+              </span>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-amber-500">
-                <Icon name="Coins" size={12} />
+            <div className="p-3">
+              <div className="font-semibold text-[#1a1a1a] text-sm leading-snug mb-0.5">{item.name}</div>
+              <div className="text-gray-400 text-xs mb-2">{item.type}</div>
+              <div className="flex items-center gap-1">
+                <Icon name="Coins" size={12} className="text-amber-500" />
                 <span className="text-sm font-bold text-[#1a1a1a]">{item.cost.toLocaleString()}</span>
+                <span className="text-xs text-gray-400 ml-0.5">золота</span>
               </div>
-              <span className={`text-xs font-bold ${item.winrate >= 55 ? "text-green-600" : "text-gray-500"}`}>WR {item.winrate}%</span>
             </div>
           </div>
         ))}
