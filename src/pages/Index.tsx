@@ -52,12 +52,12 @@ const MATCHES = [
 ];
 
 const GUIDES = [
-  { title: "Invoker: полный гайд 2026", author: "Miracle-", views: "241K", duration: "34:12", tier: "Про", hero: "Invoker", videoId: "6wSvk5P1D_I" },
-  { title: "Anti-Mage: фарм маршруты", author: "Topson", views: "187K", duration: "22:45", tier: "Про", hero: "Anti-Mage", videoId: "F9GnFofl6ns" },
-  { title: "Pudge: крюки и позиционирование", author: "Dendi", views: "312K", duration: "28:03", tier: "Легенда", hero: "Pudge", videoId: "yFyamgrBq30" },
-  { title: "Crystal Maiden: расстановка вардов", author: "GH", views: "98K", duration: "18:30", tier: "Про", hero: "Crystal Maiden", videoId: "Jp5AMfYTN6Y" },
-  { title: "Phantom Assassin: выбор предметов", author: "Ana", views: "155K", duration: "25:10", tier: "Легенда", hero: "Phantom Assassin", videoId: "Jt8MDCcnfAw" },
-  { title: "Lina: агрессивная мид-линия", author: "Nisha", views: "203K", duration: "31:05", tier: "Про", hero: "Lina", videoId: "fwHUFUFwQrA" },
+  { title: "Invoker: полный гайд 2026", author: "Serligo", views: "241K", duration: "34:12", tier: "Про", hero: "Invoker", videoId: "6wSvk5P1D_I" },
+  { title: "Anti-Mage: фарм маршруты", author: "arteans", views: "187K", duration: "22:45", tier: "Про", hero: "Anti-Mage", videoId: "F9GnFofl6ns" },
+  { title: "Pudge: крюки и позиционирование", author: "Dota_helper", views: "312K", duration: "28:03", tier: "Легенда", hero: "Pudge", videoId: "yFyamgrBq30" },
+  { title: "Crystal Maiden: расстановка вардов", author: "Soshiteru", views: "98K", duration: "18:30", tier: "Про", hero: "Crystal Maiden", videoId: "Jp5AMfYTN6Y" },
+  { title: "Phantom Assassin: выбор предметов", author: "hitaro", views: "155K", duration: "25:10", tier: "Легенда", hero: "Phantom Assassin", videoId: "Jt8MDCcnfAw" },
+  { title: "Lina: агрессивная мид-линия", author: "Dota_helper", views: "203K", duration: "31:05", tier: "Про", hero: "Lina", videoId: "fwHUFUFwQrA" },
 ];
 
 const PLAYERS = [
