@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Icon from "@/components/ui/icon";
 
 const AUTH_URL = "https://functions.poehali.dev/1b571a81-6a53-46ef-b860-58eb38a8cda6";
@@ -205,6 +205,9 @@ const ITEMS = [
   { name: "Manta Style", type: "Аксессуар", cost: 4600, color: "#059669", winrate: 54.7, img: `${CDN}/manta.png`, desc: "Создаёт двух иллюзий героя на 20 секунд. Снимает большинство эффектов силенса и замедлений при активации." },
   { name: "Butterfly", type: "Аксессуар", cost: 4975, color: "#DB2777", winrate: 55.3, img: `${CDN}/butterfly.png`, desc: "Даёт 35% уклонение от физических атак и +30 к ловкости. Превращает ловких героев в неуловимых убийц." },
   { name: "Aegis of the Immortal", type: "Аксессуар", cost: 0, color: "#F59E0B", winrate: 61.0, img: `${CDN}/aegis.png`, desc: "Выпадает с Рошана. Возрождает героя с полным HP и маной на месте гибели. Можно взять только один раз." },
+
+  // Мем
+  { name: "Tango", type: "Мем", cost: 90, color: "#16A34A", winrate: 99.9, img: `${CDN}/tango.png`, desc: "Съедает дерево, восстанавливая HP. Легендарный предмет, известный по мему «12 танго». Просто купи 12 танго.", meme: true },
 ];
 
 const STATS = [
@@ -728,8 +731,25 @@ function PageStats({ onGo }: { onGo: (s: string) => void }) {
 function PageItems() {
   const [filter, setFilter] = useState("Все");
   const [selected, setSelected] = useState<typeof ITEMS[0] | null>(null);
+  const [tangoPlaying, setTangoPlaying] = useState(false);
+  const tangoAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const filtered = filter === "Все" ? ITEMS : ITEMS.filter(i => i.type === filter);
+
+  const playTango = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (tangoPlaying) {
+      tangoAudioRef.current?.pause();
+      if (tangoAudioRef.current) tangoAudioRef.current.currentTime = 0;
+      setTangoPlaying(false);
+      return;
+    }
+    const audio = new Audio("https://www.myinstants.com/media/sounds/12-tango.mp3");
+    tangoAudioRef.current = audio;
+    audio.play().catch(() => {});
+    setTangoPlaying(true);
+    audio.onended = () => setTangoPlaying(false);
+  };
 
   const CATEGORIES = [
     { label: "Все", icon: "LayoutGrid" },
@@ -737,6 +757,7 @@ function PageItems() {
     { label: "Броня", icon: "Shield" },
     { label: "Артефакт", icon: "Zap" },
     { label: "Аксессуар", icon: "Gem" },
+    { label: "Мем", icon: "PartyPopper" },
   ];
 
   return (
@@ -765,38 +786,59 @@ function PageItems() {
         {/* Список предметов */}
         <div className={`${selected ? "lg:col-span-2" : "lg:col-span-3"}`}>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((item) => (
-              <div
-                key={item.name}
-                onClick={() => setSelected(selected?.name === item.name ? null : item)}
-                className={`bg-white rounded-xl border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group ${
-                  selected?.name === item.name ? "border-[#E84A30] shadow-md" : "border-gray-100"
-                }`}
-              >
-                <div className="relative h-24 flex items-center justify-center overflow-hidden" style={{ backgroundColor: item.color + "18" }}>
-                  <img
-                    src={item.img}
-                    alt={item.name}
-                    className="h-16 w-auto object-contain group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
-                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
-                  />
-                  <span className={`absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded ${item.winrate >= 55 ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                    WR {item.winrate}%
-                  </span>
-                  <span className="absolute top-2 left-2 text-xs px-1.5 py-0.5 rounded bg-black/40 text-white">{item.type}</span>
-                </div>
-                <div className="p-3">
-                  <div className="font-semibold text-[#1a1a1a] text-sm leading-snug mb-1">{item.name}</div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Icon name="Coins" size={12} className="text-amber-500" />
-                      <span className="text-sm font-bold text-[#1a1a1a]">{item.cost > 0 ? item.cost.toLocaleString() : "Рошан"}</span>
+            {filtered.map((item) => {
+              const isTango = (item as typeof item & { meme?: boolean }).meme;
+              return (
+                <div
+                  key={item.name}
+                  onClick={isTango ? playTango : () => setSelected(selected?.name === item.name ? null : item)}
+                  className={`bg-white rounded-xl border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group ${
+                    isTango
+                      ? tangoPlaying
+                        ? "border-green-400 shadow-green-200 shadow-lg scale-105"
+                        : "border-green-200 hover:border-green-400"
+                      : selected?.name === item.name
+                        ? "border-[#E84A30] shadow-md"
+                        : "border-gray-100"
+                  }`}
+                >
+                  <div className="relative h-24 flex items-center justify-center overflow-hidden" style={{ backgroundColor: item.color + "18" }}>
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className={`h-16 w-auto object-contain drop-shadow-lg transition-transform duration-300 ${isTango && tangoPlaying ? "animate-bounce" : "group-hover:scale-110"}`}
+                      onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0"; }}
+                    />
+                    <span className={`absolute top-2 right-2 text-xs font-bold px-1.5 py-0.5 rounded ${isTango ? "bg-green-100 text-green-700" : item.winrate >= 55 ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {isTango ? "🕺 МЕМ" : `WR ${item.winrate}%`}
+                    </span>
+                    <span className={`absolute top-2 left-2 text-xs px-1.5 py-0.5 rounded ${isTango ? "bg-green-600 text-white" : "bg-black/40 text-white"}`}>{item.type}</span>
+                    {isTango && tangoPlaying && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-green-500/10">
+                        <span className="text-2xl animate-ping">🕺</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="font-semibold text-[#1a1a1a] text-sm leading-snug mb-1">{item.name}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        {isTango ? (
+                          <span className="text-sm font-bold text-green-600">{tangoPlaying ? "Играет... 🎵" : "Нажми и танцуй!"}</span>
+                        ) : (
+                          <>
+                            <Icon name="Coins" size={12} className="text-amber-500" />
+                            <span className="text-sm font-bold text-[#1a1a1a]">{item.cost > 0 ? item.cost.toLocaleString() : "Рошан"}</span>
+                          </>
+                        )}
+                      </div>
+                      {!isTango && <Icon name="ChevronRight" size={14} className={`transition-transform ${selected?.name === item.name ? "rotate-90 text-[#E84A30]" : "text-gray-300"}`} />}
+                      {isTango && <Icon name="Music" size={14} className={tangoPlaying ? "text-green-500 animate-pulse" : "text-green-300"} />}
                     </div>
-                    <Icon name="ChevronRight" size={14} className={`transition-transform ${selected?.name === item.name ? "rotate-90 text-[#E84A30]" : "text-gray-300"}`} />
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
