@@ -214,6 +214,263 @@ function SectionHeader({ title, subtitle, action, onAction }: { title: string; s
   );
 }
 
+function PagePudge({ onGo }: { onGo: (s: string) => void }) {
+  const [videoPlaying, setVideoPlaying] = useState(false);
+
+  const abilities = [
+    { name: "Meat Hook", key: "Q", desc: "Запускает крюк, который захватывает первую цель на пути и подтягивает её к Пуджу, нанося урон.", dmg: "100 / 180 / 260 / 340", cd: "14 / 13 / 12 / 11", mana: "110" },
+    { name: "Rot", key: "W", desc: "Пудж испускает облако токсичного газа вокруг себя, нанося урон себе и врагам, замедляя их.", dmg: "30 / 60 / 90 / 120", cd: "0", mana: "0" },
+    { name: "Flesh Heap", key: "E", desc: "Пассивная способность. Пудж набирает стаки силы при убийстве героев и получении урона. Даёт сопротивление магии.", dmg: "+2 / 3 / 4 / 5 силы", cd: "—", mana: "—" },
+    { name: "Dismember", key: "R", desc: "Пудж обездвиживает и поглощает вражеского героя, нанося огромный магический урон в течение 3 секунд.", dmg: "100 / 200 / 300 + сила", cd: "30 / 20 / 10", mana: "200 / 300 / 400" },
+  ];
+
+  const startItems = [
+    { name: "Tango", cost: 90, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/tango.png" },
+    { name: "Healing Salve", cost: 100, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/flask.png" },
+    { name: "Orb of Venom", cost: 275, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/orb_of_venom.png" },
+    { name: "Clarity", cost: 50, img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/clarity.png" },
+  ];
+
+  const coreItems = [
+    { name: "Blink Dagger", cost: 2250, role: "Основа", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png" },
+    { name: "Hood of Defiance", cost: 2275, role: "Основа", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/hood_of_defiance.png" },
+    { name: "Aghanim's Scepter", cost: 4200, role: "Ключевой", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/ultimate_scepter.png" },
+    { name: "Black King Bar", cost: 4050, role: "Ключевой", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png" },
+    { name: "Heart of Tarrasque", cost: 5000, role: "Поздняя", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/heart.png" },
+    { name: "Shiva's Guard", cost: 4850, role: "Поздняя", img: "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/shivas_guard.png" },
+  ];
+
+  const stats = [
+    { label: "Пикрейт", value: "15.2%", color: "text-[#E84A30]" },
+    { label: "Винрейт", value: "47.8%", color: "text-red-500" },
+    { label: "Банрейт", value: "3.1%", color: "text-gray-600" },
+    { label: "Сложность", value: "★★★", color: "text-amber-500" },
+  ];
+
+  const roleColors: Record<string, string> = {
+    "Основа": "bg-blue-100 text-blue-700",
+    "Ключевой": "bg-[#E84A30]/10 text-[#E84A30]",
+    "Поздняя": "bg-purple-100 text-purple-700",
+  };
+
+  return (
+    <div className="py-10">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+        <button onClick={() => onGo("Герои")} className="hover:text-[#E84A30] transition-colors">Герои</button>
+        <Icon name="ChevronRight" size={14} />
+        <span className="text-[#1a1a1a] font-medium">Pudge</span>
+      </div>
+
+      {/* Hero Header */}
+      <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden mb-8 relative">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-[#16A34A] blur-3xl rounded-full translate-x-1/3 -translate-y-1/3" />
+        </div>
+        <div className="relative grid lg:grid-cols-3 gap-0">
+          {/* Portrait */}
+          <div className="relative h-72 lg:h-auto overflow-hidden">
+            <img
+              src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png"
+              alt="Pudge"
+              className="w-full h-full object-cover object-top"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1a1a] hidden lg:block" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent lg:hidden" />
+          </div>
+
+          {/* Info */}
+          <div className="lg:col-span-2 p-6 lg:p-8 flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="bg-[#E84A30] text-white text-xs font-bold px-2 py-0.5 rounded">Самый популярный</span>
+              <span className="bg-white/10 text-gray-300 text-xs px-2 py-0.5 rounded">Поддержка / Инициатор</span>
+            </div>
+            <h1 className="font-display text-5xl font-bold text-white mb-2 tracking-tight">Pudge</h1>
+            <p className="text-gray-300 text-sm italic mb-5">"The Butcher"</p>
+            <p className="text-gray-400 leading-relaxed mb-6 max-w-xl">
+              Pudge — легендарный герой поддержки с мощным крюком и высоким уроном. Один из самых узнаваемых персонажей Dota 2, обожаемый за зрелищные хуки и возможность определить исход матча одним удачным броском.
+            </p>
+            {/* Stats row */}
+            <div className="grid grid-cols-4 gap-3">
+              {stats.map((s) => (
+                <div key={s.label} className="bg-white/5 rounded-xl p-3 text-center border border-white/10">
+                  <div className={`font-display text-xl font-bold mb-0.5 ${s.color}`}>{s.value}</div>
+                  <div className="text-gray-500 text-xs">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Left column */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* VIDEO GUIDE */}
+          <div>
+            <h2 className="font-display text-xl font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
+              <Icon name="Play" size={18} className="text-[#E84A30]" />
+              Видеогайд
+            </h2>
+            <div className="bg-[#1a1a1a] rounded-xl overflow-hidden relative aspect-video">
+              {videoPlaying ? (
+                <iframe
+                  src="https://www.youtube.com/embed/yFyamgrBq30?autoplay=1"
+                  title="Pudge Guide"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="relative w-full h-full cursor-pointer group" onClick={() => setVideoPlaying(true)}>
+                  <img
+                    src="https://img.youtube.com/vi/yFyamgrBq30/maxresdefault.jpg"
+                    alt="Pudge Guide Preview"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <div className="w-16 h-16 bg-[#E84A30] rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Icon name="Play" size={28} className="text-white translate-x-1" />
+                    </div>
+                    <div className="text-white font-semibold text-sm">Смотреть гайд на YouTube</div>
+                  </div>
+                  <div className="absolute bottom-3 right-3">
+                    <a
+                      href="https://www.youtube.com/watch?v=yFyamgrBq30"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 bg-black/60 hover:bg-[#E84A30] text-white text-xs px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Icon name="ExternalLink" size={12} />
+                      YouTube
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ABILITIES */}
+          <div>
+            <h2 className="font-display text-xl font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
+              <Icon name="Zap" size={18} className="text-[#E84A30]" />
+              Способности
+            </h2>
+            <div className="space-y-3">
+              {abilities.map((ab) => (
+                <div key={ab.name} className="bg-white rounded-xl border border-gray-100 p-4 flex gap-4">
+                  <div className="w-10 h-10 bg-[#1a1a1a] rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-[#E84A30] font-display font-bold text-sm">{ab.key}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[#1a1a1a] mb-1">{ab.name}</div>
+                    <div className="text-gray-500 text-sm leading-relaxed mb-2">{ab.desc}</div>
+                    <div className="flex flex-wrap gap-3 text-xs">
+                      <span className="text-gray-400">Урон: <span className="text-[#1a1a1a] font-medium">{ab.dmg}</span></span>
+                      <span className="text-gray-400">КД: <span className="text-[#1a1a1a] font-medium">{ab.cd}с</span></span>
+                      {ab.mana !== "—" && <span className="text-gray-400">Мана: <span className="text-blue-500 font-medium">{ab.mana}</span></span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right column — items */}
+        <div className="space-y-6">
+          {/* Attribute bars */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h3 className="font-display font-bold text-[#1a1a1a] mb-4">Характеристики</h3>
+            <div className="space-y-3">
+              {[
+                { label: "Сила", value: 25, max: 40, color: "bg-red-500", icon: "💪" },
+                { label: "Ловкость", value: 14, max: 40, color: "bg-green-500", icon: "🏃" },
+                { label: "Интеллект", value: 14, max: 40, color: "bg-blue-500", icon: "🧠" },
+              ].map((attr) => (
+                <div key={attr.label}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">{attr.icon} {attr.label}</span>
+                    <span className="text-sm font-bold text-[#1a1a1a]">{attr.value}</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className={`h-full ${attr.color} rounded-full`} style={{ width: `${(attr.value / attr.max) * 100}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-2 text-xs">
+              {[
+                { label: "Урон", value: "52–58" },
+                { label: "Броня", value: "3.1" },
+                { label: "HP", value: "625" },
+                { label: "Скорость", value: "285" },
+              ].map((s) => (
+                <div key={s.label} className="flex justify-between">
+                  <span className="text-gray-400">{s.label}</span>
+                  <span className="font-semibold text-[#1a1a1a]">{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Starting items */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h3 className="font-display font-bold text-[#1a1a1a] mb-3">Стартовые предметы</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {startItems.map((item) => (
+                <div key={item.name} className="text-center group cursor-pointer">
+                  <div className="w-full aspect-square bg-[#1a1a1a] rounded-lg overflow-hidden mb-1 group-hover:ring-2 ring-[#E84A30] transition-all">
+                    <img src={item.img} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  </div>
+                  <div className="text-[10px] text-gray-500 leading-tight">{item.name}</div>
+                  <div className="text-[10px] text-amber-600 font-bold">{item.cost}g</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Core items */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h3 className="font-display font-bold text-[#1a1a1a] mb-3">Основные предметы</h3>
+            <div className="space-y-2">
+              {coreItems.map((item) => (
+                <div key={item.name} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                  <div className="w-10 h-10 bg-[#1a1a1a] rounded-lg overflow-hidden shrink-0">
+                    <img src={item.img} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-[#1a1a1a] truncate">{item.name}</div>
+                    <div className="text-xs text-amber-600">{item.cost.toLocaleString()}g</div>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${roleColors[item.role]}`}>{item.role}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="bg-[#1a1a1a] rounded-xl p-5 text-white">
+            <h3 className="font-display font-bold mb-3 flex items-center gap-2">
+              <Icon name="Lightbulb" size={16} className="text-[#E84A30]" />
+              Советы
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li className="flex gap-2"><span className="text-[#E84A30] shrink-0">→</span>Используй Rot перед кастом крюка — замедление поможет попасть</li>
+              <li className="flex gap-2"><span className="text-[#E84A30] shrink-0">→</span>Blink + Hook — основная связка для инициации на врага</li>
+              <li className="flex gap-2"><span className="text-[#E84A30] shrink-0">→</span>Flesh Heap растёт от убийств — не бойся фармить убийства</li>
+              <li className="flex gap-2"><span className="text-[#E84A30] shrink-0">→</span>Dismember даёт урон от силы — качай силу через Heart и Scepter</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PageHeroes({ onGo }: { onGo: (s: string) => void }) {
   return (
     <div className="py-10">
@@ -251,12 +508,23 @@ function PageHeroes({ onGo }: { onGo: (s: string) => void }) {
               )}
             </div>
             <div className="p-3">
-              <div className="font-semibold text-[#1a1a1a] text-sm truncate">{hero.name}</div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <div className="font-semibold text-[#1a1a1a] text-sm truncate">{hero.name}</div>
+                {hero.name === "Pudge" && <span className="text-[10px] bg-[#E84A30]/10 text-[#E84A30] px-1 rounded shrink-0">🔥 Топ</span>}
+              </div>
               <div className="text-gray-400 text-xs">{hero.role}</div>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-xs text-gray-500">Винрейт</span>
                 <span className={`text-xs font-bold ${hero.winrate >= 50 ? "text-green-600" : "text-red-500"}`}>{hero.winrate}%</span>
               </div>
+              {hero.name === "Pudge" && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onGo("Pudge"); }}
+                  className="mt-2 w-full text-xs bg-[#1a1a1a] text-white rounded-md py-1 hover:bg-[#E84A30] transition-colors font-medium"
+                >
+                  Подробнее
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -737,6 +1005,7 @@ export default function Index() {
       case "Турниры": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageTournaments /></div>;
       case "Рейтинги": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageRatings onGo={navigate} /></div>;
       case "Гайды": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PageGuides /></div>;
+      case "Pudge": return <div className="max-w-7xl mx-auto px-4 sm:px-6"><PagePudge onGo={navigate} /></div>;
       default: return <HomeSection onGo={navigate} />;
     }
   };
