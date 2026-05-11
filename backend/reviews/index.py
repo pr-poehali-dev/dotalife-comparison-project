@@ -97,7 +97,7 @@ def handler(event: dict, context) -> dict:
             }, 201)
 
         # Гость — получаем следующий номер из sequence
-        cur.execute("SELECT nextval('guest_counter')")
+        cur.execute(f"SELECT nextval('{SCHEMA}.guest_counter')")
         guest_num = cur.fetchone()[0]
         guest_name = f"#Гость{guest_num:05d}"
 
