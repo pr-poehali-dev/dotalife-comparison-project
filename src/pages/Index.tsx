@@ -12,6 +12,21 @@ const NAV_ITEMS = [
   { label: "Гайды", icon: "BookOpen" },
 ];
 
+const HERO_IMAGES: Record<string, string> = {
+  "Invoker": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/invoker.png",
+  "Anti-Mage": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/antimage.png",
+  "Pudge": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png",
+  "Crystal Maiden": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png",
+  "Phantom Assassin": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/phantom_assassin.png",
+  "Axe": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/axe.png",
+  "Lion": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lion.png",
+  "Juggernaut": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png",
+  "Lina": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lina.png",
+  "Earthshaker": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/earthshaker.png",
+  "Drow Ranger": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/drow_ranger.png",
+  "Storm Spirit": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/storm_spirit.png",
+};
+
 const HEROES = [
   { name: "Invoker", role: "Маг", winrate: 52.3, tier: "S", color: "#E84A30", hasVideo: true },
   { name: "Anti-Mage", role: "Керри", winrate: 49.1, tier: "A", color: "#2563EB", hasVideo: true },
@@ -213,10 +228,21 @@ function PageHeroes({ onGo }: { onGo: (s: string) => void }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {HEROES.map((hero) => (
           <div key={hero.name} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group">
-            <div className="relative h-28 flex items-center justify-center" style={{ backgroundColor: hero.color + "15" }}>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-display font-bold text-white" style={{ backgroundColor: hero.color }}>
-                {hero.name[0]}
-              </div>
+            <div className="relative h-28 overflow-hidden" style={{ backgroundColor: hero.color + "20" }}>
+              {HERO_IMAGES[hero.name] ? (
+                <img
+                  src={HERO_IMAGES[hero.name]}
+                  alt={hero.name}
+                  className="w-full h-full object-cover object-top scale-110 group-hover:scale-125 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-display font-bold text-white" style={{ backgroundColor: hero.color }}>
+                    {hero.name[0]}
+                  </div>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               <span className={`absolute top-2 left-2 text-xs font-bold px-1.5 py-0.5 rounded ${TIER_COLORS[hero.tier]}`}>{hero.tier}</span>
               {hero.hasVideo && (
                 <button onClick={() => onGo("Гайды")} className="absolute top-2 right-2 bg-[#E84A30] text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-0.5 hover:bg-[#cf3d26] transition-colors">
@@ -269,7 +295,13 @@ function PageStats({ onGo }: { onGo: (s: string) => void }) {
               <tr key={h.name} className="hover:bg-gray-50 transition-colors cursor-pointer">
                 <td className="px-5 py-3 flex items-center gap-3">
                   <span className="text-gray-400 text-sm w-5">{i + 1}</span>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style={{ backgroundColor: h.color }}>{h.name[0]}</div>
+                  <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: h.color }}>
+                    {HERO_IMAGES[h.name] ? (
+                      <img src={HERO_IMAGES[h.name]} alt={h.name} className="w-full h-full object-cover object-top scale-125" />
+                    ) : (
+                      <span className="text-white text-sm font-bold">{h.name[0]}</span>
+                    )}
+                  </div>
                   <span className="font-semibold text-[#1a1a1a] text-sm">{h.name}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -551,8 +583,15 @@ function HomeSection({ onGo }: { onGo: (s: string) => void }) {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {HEROES.slice(0, 6).map((hero) => (
               <div key={hero.name} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group" onClick={() => onGo("Герои")}>
-                <div className="relative h-28 flex items-center justify-center" style={{ backgroundColor: hero.color + "15" }}>
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-display font-bold text-white" style={{ backgroundColor: hero.color }}>{hero.name[0]}</div>
+                <div className="relative h-28 overflow-hidden" style={{ backgroundColor: hero.color + "20" }}>
+                  {HERO_IMAGES[hero.name] ? (
+                    <img src={HERO_IMAGES[hero.name]} alt={hero.name} className="w-full h-full object-cover object-top scale-110 group-hover:scale-125 transition-transform duration-300" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-display font-bold text-white" style={{ backgroundColor: hero.color }}>{hero.name[0]}</div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   <span className={`absolute top-2 left-2 text-xs font-bold px-1.5 py-0.5 rounded ${TIER_COLORS[hero.tier]}`}>{hero.tier}</span>
                   {hero.hasVideo && (
                     <span className="absolute top-2 right-2 bg-[#E84A30] text-white text-xs px-1.5 py-0.5 rounded flex items-center gap-0.5">
